@@ -1,0 +1,4 @@
+.DS_Store
+local_test/build/
+# >100MB, exceeds GitHub file limit
+lab2/lab1part2_140842768.zip
