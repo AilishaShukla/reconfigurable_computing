@@ -77,6 +77,7 @@ void pl(block_t *A_p,  block_t *B_p, block_t *C_p,   int N )
             init_i_loop: for(int i = 0; i < M; i++) {
                 // Fill This Part !!!
                 // Add #pragma HLS pipeline II=1 pragma in init_i_loop loop, therefore, init_j_loop is fully unrolled
+                #pragma HLS pipeline II=1
                 init_j_loop: for(int j = 0; j < M; j++) {
                     C_block[i][j] = 0;
                 }
