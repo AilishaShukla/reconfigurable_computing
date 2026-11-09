@@ -88,6 +88,7 @@ void pl(block_t *A_p,  block_t *B_p, block_t *C_p,   int N )
                     DTYPE Bj[M];
                     // Fill This Part !!!
                     // Add pragma to partition Bj
+                    #pragma HLS array_partition variable=Bj complete
                     readB_j_loop: for(int jj = 0; jj < M/DTYPE_PER_PORT; jj++) {
                         #pragma HLS pipeline II=1
                         block_t B_temp = B_p[((kb*M+k)*N+jb*M)/DTYPE_PER_PORT+jj];
