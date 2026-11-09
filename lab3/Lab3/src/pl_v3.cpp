@@ -68,6 +68,7 @@ void pl(block_t *A_p,  block_t *B_p, block_t *C_p,   int N )
 
     DTYPE C_block[M][M];
     // Fill This Part !!! Add pragma to partition C_block
+    #pragma HLS array_partition variable=C_block complete dim=2
 
 
 
