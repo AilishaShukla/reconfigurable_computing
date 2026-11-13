@@ -88,6 +88,7 @@ void pl(block_t *A_p,  block_t *B_p, block_t *C_p,   int N )
                     DTYPE Bj[M];
                     // Fill This Part !!!
                     // Add pragma to partition Bj
+                    #pragma HLS array_partition variable=Bj complete
                     readB_j_loop: for(int jj = 0; jj < M/DTYPE_PER_PORT; jj++) {
                         #pragma HLS pipeline II=1
                         block_t B_temp = B_p[((kb*M+k)*N+jb*M)/DTYPE_PER_PORT+jj];
@@ -95,6 +96,7 @@ void pl(block_t *A_p,  block_t *B_p, block_t *C_p,   int N )
                             #pragma HLS unroll
                             // Fill This Part !!! 
 							// Assign temp to Bj
+                            Bj[jj*DTYPE_PER_PORT + j] = B_temp(DTYPE_WIDTH_b*(j+1)-1, DTYPE_WIDTH_b*j);
 						}
                     }
 
@@ -106,11 +108,13 @@ void pl(block_t *A_p,  block_t *B_p, block_t *C_p,   int N )
                     ii_loop: for(int ii = 0; ii < M/DTYPE_PER_PORT; ii++) {
                         // Fill This Part !!! 
                         // Add #pragma HLS pipeline II=1 pragma in ii_loop loop, therefore, in_i_loop is fully unrolled
+                        #pragma HLS pipeline II=1
 						block_t Ai_block =  A_p[((kb*M+k)*N+ib*M)/DTYPE_PER_PORT+ii];
 						in_i_loop: for (int i = 0; i < DTYPE_PER_PORT; i++) {
                             #pragma HLS unroll
                             // Fill This Part !!! 
                             // Assign temp to A_line
+                            A_line[ii*DTYPE_PER_PORT + i] = Ai_block(DTYPE_WIDTH_b*(i+1)-1, DTYPE_WIDTH_b*i);
 
 						}
 					}
@@ -118,6 +122,7 @@ void pl(block_t *A_p,  block_t *B_p, block_t *C_p,   int N )
 					i_loop: for(int i = 0; i < M; i++) {
                         // Fill This Part !!! 
                         // Add #pragma HLS pipeline II=1 pragma in i loop, therefore, j is fully unrolled
+                        #pragma HLS pipeline II=1
                         
 						j_loop: for(int j = 0; j < M; j++) {
                             #pragma HLS unroll

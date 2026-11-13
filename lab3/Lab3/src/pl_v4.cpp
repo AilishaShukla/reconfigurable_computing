@@ -108,7 +108,53 @@ void comp(hls::stream<DTYPE> &AStream, hls::stream<block_t> &BStream, hls::strea
     #pragma HLS array_partition variable=C_block complete dim=2
     // Fill This Part !!! 
     // Follow the structure in previous versions to complete.
-    
+
+    comp_ib_loop: for(int ib = 0; ib < N/M; ib++) {
+        comp_jb_loop: for(int jb = 0; jb < N/M; jb++) {
+            init_i_loop: for(int i = 0; i < M; i++) {
+                #pragma HLS pipeline II=1
+                init_j_loop: for(int j = 0; j < M; j++) {
+                    C_block[i][j] = 0;
+                }
+            }
+
+            kb_loop: for(int kb = 0; kb < N/M; kb++) {
+                k_loop: for(int k = 0; k < M; k++) {
+                    DTYPE Bj[M];
+                    #pragma HLS array_partition variable=Bj complete
+                    readB_j_loop: for(int jj = 0; jj < M/DTYPE_PER_PORT; jj++) {
+                        #pragma HLS pipeline II=1
+                        block_t B_temp = BStream.read();
+                        for(int j = 0; j < DTYPE_PER_PORT; j++) {
+                            #pragma HLS unroll
+                            Bj[jj*DTYPE_PER_PORT + j] = B_temp(DTYPE_WIDTH_b*(j+1)-1, DTYPE_WIDTH_b*j);
+                        }
+                    }
+
+                    i_loop: for(int i = 0; i < M; i++) {
+                        #pragma HLS pipeline II=1
+                        DTYPE a = AStream.read();
+                        j_loop: for(int j = 0; j < M; j++) {
+                            #pragma HLS unroll
+                            C_block[i][j] += a * Bj[j];
+                        }
+                    }
+                }
+            }
+
+            writeC_i_loop: for(int i = 0; i < M; i++) {
+                writeC_j_loop: for(int jj = 0; jj < M/DTYPE_PER_PORT; jj++) {
+                    #pragma HLS pipeline II=1
+                    block_t C_temp;
+                    for(int j = 0; j < DTYPE_PER_PORT; j++) {
+                        #pragma HLS unroll
+                        C_temp(DTYPE_WIDTH_b*(j+1)-1, DTYPE_WIDTH_b*j) = (ap_int<DTYPE_WIDTH_b>) C_block[i][jj*DTYPE_PER_PORT + j];
+                    }
+                    CStream.write(C_temp);
+                }
+            }
+        }
+    }
 }
 
 void writeC(hls::stream<block_t> &CStream, block_t *C, int N) {
