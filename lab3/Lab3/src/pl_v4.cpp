@@ -127,7 +127,8 @@ void comp(hls::stream<DTYPE> &AStream, hls::stream<block_t> &BStream, hls::strea
                         block_t B_temp = BStream.read();
                         for(int j = 0; j < DTYPE_PER_PORT; j++) {
                             #pragma HLS unroll
-                            Bj[jj*DTYPE_PER_PORT + j] = B_temp(DTYPE_WIDTH_b*(j+1)-1, DTYPE_WIDTH_b*j);
+                            ap_int<DTYPE_WIDTH_b> b = B_temp(DTYPE_WIDTH_b*(j+1)-1, DTYPE_WIDTH_b*j);
+                            Bj[jj*DTYPE_PER_PORT + j] = (DTYPE)b;
                         }
                     }
 
@@ -145,7 +146,7 @@ void comp(hls::stream<DTYPE> &AStream, hls::stream<block_t> &BStream, hls::strea
             writeC_i_loop: for(int i = 0; i < M; i++) {
                 writeC_j_loop: for(int jj = 0; jj < M/DTYPE_PER_PORT; jj++) {
                     #pragma HLS pipeline II=1
-                    block_t C_temp;
+                    block_t C_temp = 0;
                     for(int j = 0; j < DTYPE_PER_PORT; j++) {
                         #pragma HLS unroll
                         C_temp(DTYPE_WIDTH_b*(j+1)-1, DTYPE_WIDTH_b*j) = (ap_int<DTYPE_WIDTH_b>) C_block[i][jj*DTYPE_PER_PORT + j];

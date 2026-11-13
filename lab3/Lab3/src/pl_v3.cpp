@@ -96,7 +96,8 @@ void pl(block_t *A_p,  block_t *B_p, block_t *C_p,   int N )
                             #pragma HLS unroll
                             // Fill This Part !!! 
 							// Assign temp to Bj
-                            Bj[jj*DTYPE_PER_PORT + j] = B_temp(DTYPE_WIDTH_b*(j+1)-1, DTYPE_WIDTH_b*j);
+                            ap_int<DTYPE_WIDTH_b> b = B_temp(DTYPE_WIDTH_b*(j+1)-1, DTYPE_WIDTH_b*j);
+                            Bj[jj*DTYPE_PER_PORT + j] = (DTYPE)b;
 						}
                     }
 
@@ -114,7 +115,8 @@ void pl(block_t *A_p,  block_t *B_p, block_t *C_p,   int N )
                             #pragma HLS unroll
                             // Fill This Part !!! 
                             // Assign temp to A_line
-                            A_line[ii*DTYPE_PER_PORT + i] = Ai_block(DTYPE_WIDTH_b*(i+1)-1, DTYPE_WIDTH_b*i);
+                            ap_int<DTYPE_WIDTH_b> tmp = Ai_block(DTYPE_WIDTH_b*(i+1)-1, DTYPE_WIDTH_b*i);
+                            A_line[ii*DTYPE_PER_PORT + i] = (DTYPE)tmp;
 
 						}
 					}
